@@ -1,5 +1,10 @@
 package server;
 
+import netscape.javascript.JSObject;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.json.JSONStringer;
+import server_state.ServerState;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -14,12 +19,16 @@ public class ServerThread extends Thread{
     private Socket socket;
     private ArrayList<Socket> clients;
     private HashMap<Socket, String> clientNameList;
+    private HashMap<Socket, String> clientTokenList;
+    private ServerState serverState;
     private String messageColor;
 
-    public ServerThread(Socket socket, ArrayList<Socket> clients, HashMap<Socket, String> clientNameList) {
+    public ServerThread(Socket socket, ArrayList<Socket> clients, HashMap<Socket, String> clientNameList, HashMap<Socket, String> clientTokenList) {
         this.socket = socket;
         this.clients = clients;
         this.clientNameList = clientNameList;
+        this.clientTokenList = clientTokenList;
+        this.serverState = ServerState.LOBBY;
         this.messageColor = "";
     }
 
@@ -30,12 +39,16 @@ public class ServerThread extends Thread{
 
             while (true) {
                 String outputString = input.readLine();
-                if (outputString.equals("logout")) {
+                if (outputString.equals("/logout")) {
                     throw new SocketException();
+                }
+                else if(outputString.equals("/run")) {
+                    launchGame();
                 }
                 if (!clientNameList.containsKey(socket)) {
                     String[] messageString = outputString.split(":", 2);
                     clientNameList.put(socket, messageString[0]);
+                    clientTokenList.put(socket, RandomStringUtils.randomAlphanumeric(250)); // Generate random token for identifying the client
                     System.out.println(messageString[0] + messageString[1]);
                     showMessageToAllClients(socket, messageString[0] + messageString[1]);
                 } else {
@@ -55,6 +68,10 @@ public class ServerThread extends Thread{
         }
     }
 
+    private void launchGame() {
+        serverState = ServerState.IN_GAME;
+    }
+
     private void showMessageToAllClients(Socket sender, String outputString) {
         Socket socket;
         PrintWriter printWriter;
@@ -65,7 +82,12 @@ public class ServerThread extends Thread{
             try {
                 if (socket != sender) {
                     printWriter = new PrintWriter(socket.getOutputStream(), true);
-                    printWriter.println(outputString);
+                    JSONStringer json = new JSONStringer();
+                    json.object();
+                    json.key("token").value(clientTokenList.get(socket));
+                    json.key("message").value(outputString);
+                    json.endObject();
+                    printWriter.println(json.toString());
                 }
             } catch (IOException ex) {
                 System.out.println(ex);
