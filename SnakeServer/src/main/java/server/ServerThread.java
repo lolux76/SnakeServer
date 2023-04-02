@@ -2,8 +2,18 @@ package server;
 
 import netscape.javascript.JSObject;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.json.JSONStringer;
+
+import controller.ControllerSnakeGame;
+import model.InputMap;
+import model.SnakeGame;
 import server_state.ServerState;
+import strategy.Strategy;
+import strategy.StrategyHuman;
+import view.PanelSnakeGame;
+import view.ViewSnakeGame;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -39,10 +49,11 @@ public class ServerThread extends Thread{
 
             while (true) {
                 String outputString = input.readLine();
-                if (outputString.equals("/logout")) {
+                String verif=outputString.split(": ")[1];
+                if (verif.equals("/logout")) {
                     throw new SocketException();
                 }
-                else if(outputString.equals("/run")) {
+                else if(verif.equals("/run")) {
                     launchGame();
                 }
                 if (!clientNameList.containsKey(socket)) {
@@ -52,9 +63,7 @@ public class ServerThread extends Thread{
                     System.out.println(messageString[0] + messageString[1]);
                     showMessageToAllClients(socket, messageString[0] + messageString[1]);
                 } else {
-                    messageColor = ChatColor.getColor(clients.indexOf(socket));
-                    System.out.println(messageColor + outputString + ChatColor.RESET);
-                    showMessageToAllClients(socket, messageColor + outputString + ChatColor.RESET);
+                    showMessageToAllClients(socket, outputString);
                 }
             }
         } catch (SocketException e) {
@@ -69,7 +78,26 @@ public class ServerThread extends Thread{
     }
 
     private void launchGame() {
+    	System.out.println("launching the game");
         serverState = ServerState.IN_GAME;
+        String layoutName = "SnakeServer/layouts/alone/smallNoWall_alone.lay";
+		InputMap inputMap = null;
+		try {
+			inputMap = new InputMap(layoutName);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		SnakeGame snakeGame = new SnakeGame(1000, inputMap, true);
+		Strategy[] arrayStrategies = new Strategy[inputMap.getStart_snakes().size()];
+		arrayStrategies[0]=new StrategyHuman();
+		snakeGame.setStrategies(arrayStrategies);
+		snakeGame.init();
+		ControllerSnakeGame controllerSnakeGame = new ControllerSnakeGame(snakeGame);
+		PanelSnakeGame panelSnakeGame = new PanelSnakeGame(inputMap.getSizeX(), inputMap.getSizeY(), inputMap.get_walls(), inputMap.getStart_snakes(), inputMap.getStart_items());
+		ViewSnakeGame view = new ViewSnakeGame(controllerSnakeGame, snakeGame, panelSnakeGame);
+		snakeGame.launch();
+		controllerSnakeGame.play();
     }
 
     private void showMessageToAllClients(Socket sender, String outputString) {
@@ -82,16 +110,17 @@ public class ServerThread extends Thread{
             try {
                 if (socket != sender) {
                     printWriter = new PrintWriter(socket.getOutputStream(), true);
-                    JSONStringer json = new JSONStringer();
-                    json.object();
-                    json.key("token").value(clientTokenList.get(socket));
-                    json.key("message").value(outputString);
-                    json.endObject();
-                    printWriter.println(json.toString());
+                    JSONObject json= new JSONObject();
+                    json.put("token",clientTokenList.get(socket));
+                    json.put("message",outputString);
+                    printWriter.println(json);
                 }
             } catch (IOException ex) {
                 System.out.println(ex);
-            }
+            } catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
         }
     }
 }

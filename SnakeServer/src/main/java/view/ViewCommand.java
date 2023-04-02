@@ -51,16 +51,16 @@ public class ViewCommand implements Observer {
 		int dy= centerPoint.y - windowSize.height/ 2 - 350;
 		jFrame.setLocation(dx,dy);
 
-		Icon icon_restart= new ImageIcon("icons/icon_restart.png");
+		Icon icon_restart= new ImageIcon("SnakeServer/icons/icon_restart.png");
 		initChoice = new JButton(icon_restart);
 
-		Icon icon_play= new ImageIcon("icons/icon_play.png");
+		Icon icon_play= new ImageIcon("SnakeServer/icons/icon_play.png");
 		playChoice = new JButton(icon_play);
 
-		Icon icon_step= new ImageIcon("icons/icon_step.png");
+		Icon icon_step= new ImageIcon("SnakeServer/icons/icon_step.png");
 		stepChoice = new JButton(icon_step);
 
-		Icon icon_pause= new ImageIcon("icons/icon_pause.png");
+		Icon icon_pause= new ImageIcon("SnakeServer/icons/icon_pause.png");
 		pauseChoice = new JButton(icon_pause);
 
 		

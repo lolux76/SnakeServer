@@ -27,7 +27,7 @@ public class main_batchMode_solo {
 
 		boolean randomFirstApple = true;	
 		
-		String layoutName = "layouts/alone/smallNoWall_alone.lay";
+		String layoutName = "SnakeServer/layouts/alone/smallNoWall_alone.lay";
 		
 		InputMap inputMap = null;
 		
