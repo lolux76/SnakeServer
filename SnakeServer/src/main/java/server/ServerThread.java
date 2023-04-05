@@ -24,8 +24,10 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Observable;
+import java.util.Observer;
 
-public class ServerThread extends Thread{
+public class ServerThread extends Thread implements Observer{
     private Socket socket;
     private ArrayList<Socket> clients;
     private HashMap<Socket, String> clientNameList;
@@ -78,26 +80,8 @@ public class ServerThread extends Thread{
     }
 
     private void launchGame() {
-    	System.out.println("launching the game");
-        serverState = ServerState.IN_GAME;
-        String layoutName = "SnakeServer/layouts/alone/smallNoWall_alone.lay";
-		InputMap inputMap = null;
-		try {
-			inputMap = new InputMap(layoutName);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		SnakeGame snakeGame = new SnakeGame(1000, inputMap, true);
-		Strategy[] arrayStrategies = new Strategy[inputMap.getStart_snakes().size()];
-		arrayStrategies[0]=new StrategyHuman();
-		snakeGame.setStrategies(arrayStrategies);
-		snakeGame.init();
-		ControllerSnakeGame controllerSnakeGame = new ControllerSnakeGame(snakeGame);
-		PanelSnakeGame panelSnakeGame = new PanelSnakeGame(inputMap.getSizeX(), inputMap.getSizeY(), inputMap.get_walls(), inputMap.getStart_snakes(), inputMap.getStart_items());
-		ViewSnakeGame view = new ViewSnakeGame(controllerSnakeGame, snakeGame, panelSnakeGame);
-		snakeGame.launch();
-		controllerSnakeGame.play();
+    	GameThread gameThread=new GameThread(this);
+    	gameThread.run();
     }
 
     private void showMessageToAllClients(Socket sender, String outputString) {
@@ -123,4 +107,11 @@ public class ServerThread extends Thread{
 			}
         }
     }
+
+	@Override
+	public void update(Observable arg0, Object arg1) {
+		
+	}
+    
+
 }
