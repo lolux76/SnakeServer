@@ -17,11 +17,11 @@ import utils.FeaturesItem;
 import utils.FeaturesSnake;
 import utils.ItemType;
 import utils.Position;
+import utils.Direction;
 
 
 
 public class SnakeGame extends Game implements Serializable{
-
 
 
 	private static final int REWARD_APPLE = 1;
@@ -70,7 +70,6 @@ public class SnakeGame extends Game implements Serializable{
 		super(maxTurn);
 
 		this.inputMap = inputMap;
-		this.inputMoveHuman1 = AgentAction.MOVE_DOWN;
 
 		this.randomFirstApple = randomFirstApple;
 
@@ -129,7 +128,27 @@ public class SnakeGame extends Game implements Serializable{
 
 		
 	}
-
+	
+	public void changeLastAction(Direction direction) {
+		switch(direction) {
+		case GAUCHE:
+			inputMoveHuman1=AgentAction.MOVE_LEFT;
+			break;
+		case DROITE:
+			inputMoveHuman1=AgentAction.MOVE_RIGHT;
+			break;
+		case HAUT:
+			inputMoveHuman1=AgentAction.MOVE_UP;
+			break;
+		case BAS:
+			inputMoveHuman1=AgentAction.MOVE_DOWN;
+			break;
+		default:
+			inputMoveHuman1=AgentAction.MOVE_DOWN;
+			break;
+		}
+	}
+	
 	@Override
 	public void takeTurn() {
 

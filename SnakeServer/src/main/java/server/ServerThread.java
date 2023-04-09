@@ -110,7 +110,11 @@ public class ServerThread extends Thread implements Observer{
 
 	@Override
 	public void update(Observable arg0, Object arg1) {
-		
+		/*PrintWriter printWriter;
+		JSONObject json= new JSONObject();
+        json.put("token",clientTokenList.get(socket));
+        json.put("position",arg0);
+        printWriter.println(json);*/
 	}
     
 

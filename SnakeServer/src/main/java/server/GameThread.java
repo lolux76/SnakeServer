@@ -8,6 +8,7 @@ import model.InputMap;
 import model.SnakeGame;
 import strategy.Strategy;
 import strategy.StrategyHuman;
+import utils.Direction;
 
 public class GameThread implements Runnable{
 	private SnakeGame snakeGame;
@@ -15,12 +16,6 @@ public class GameThread implements Runnable{
 	private InputMap inputMap = null;
 	Observer serverObserv;
 	
-	public enum direction{
-		GAUCHE,
-		DROITE,
-		HAUT,
-		BAS;
-	}
 	public GameThread(Observer observer) {
 		serverObserv=observer;
 		try {
@@ -37,10 +32,10 @@ public class GameThread implements Runnable{
 	}
 	
 	public void run() {
-		
+		snakeGame.takeTurn();
 	}
-	public void update(Observable arg0, Object arg1) {
-		// TODO Auto-generated method stub
-		
+	
+	public void majSnake(Direction direction){
+		snakeGame.changeLastAction(direction);
 	}
 }
