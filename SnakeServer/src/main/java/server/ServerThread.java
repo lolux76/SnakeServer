@@ -80,7 +80,7 @@ public class ServerThread extends Thread implements Observer{
     }
 
     private void launchGame() {
-    	GameThread gameThread=new GameThread(this);
+    	GameThread gameThread=new GameThread(this, this.socket, this.clientTokenList.get(this.socket));
     	gameThread.run();
     }
 

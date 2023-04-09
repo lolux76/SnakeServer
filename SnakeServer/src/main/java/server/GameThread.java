@@ -10,6 +10,7 @@ import java.util.Observer;
 import agent.Snake;
 import controller.ControllerSnakeGame;
 import item.Item;
+import model.GameObserveur;
 import model.InputMap;
 import model.SnakeGame;
 import org.json.JSONArray;
@@ -26,6 +27,7 @@ public class GameThread implements Runnable, Observer {
 
 	private String token;
 	private Socket socket;
+	private GameObserveur gameObserveur;
 	
 	public GameThread(Observer observer, Socket socket, String token) {
 		serverObserv=observer;
@@ -39,12 +41,13 @@ public class GameThread implements Runnable, Observer {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		this.snakeGame = new SnakeGame(1000, inputMap, true);
+		this.gameObserveur = new GameObserveur();
+		this.snakeGame = new SnakeGame(1000, inputMap, true, this.gameObserveur);
 		Strategy[] arrayStrategies = new Strategy[inputMap.getStart_snakes().size()];
 		arrayStrategies[0]=new StrategyHuman();
 		this.snakeGame.setStrategies(arrayStrategies);
 		this.snakeGame.init();
-		this.snakeGame.addObserver(this);
+		this.gameObserveur.addObserver(this);
 	}
 	
 	public void run() {

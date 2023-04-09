@@ -1,9 +1,7 @@
 package model;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.ListIterator;
-import java.util.Random;
+import java.util.*;
 
 import org.apache.commons.lang3.SerializationUtils;
 
@@ -21,7 +19,7 @@ import utils.Direction;
 
 
 
-public class SnakeGame extends Game implements Serializable{
+public class SnakeGame extends Game implements Serializable {
 
 
 	private static final int REWARD_APPLE = 1;
@@ -65,13 +63,17 @@ public class SnakeGame extends Game implements Serializable{
 	
 	boolean randomFirstApple;
 
-	public SnakeGame(int maxTurn, InputMap inputMap, boolean randomFirstApple) {
+	private GameObserveur gameObserveur;
+
+	public SnakeGame(int maxTurn, InputMap inputMap, boolean randomFirstApple, GameObserveur gameObserveur) {
 
 		super(maxTurn);
 
 		this.inputMap = inputMap;
 
 		this.randomFirstApple = randomFirstApple;
+
+		this.gameObserveur = gameObserveur;
 
 	}
 
@@ -224,6 +226,8 @@ public class SnakeGame extends Game implements Serializable{
 		//removeSnake();
 		
 		updateSnakeTimers();
+
+		this.gameObserveur.update(this);
 
 			
 	}
