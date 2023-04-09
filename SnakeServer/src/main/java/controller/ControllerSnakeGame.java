@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import agent.Snake;
 import item.Item;
+import model.GameObserveur;
 import model.SnakeGame;
 import model.InputMap;
 import utils.AgentAction;
@@ -41,7 +42,7 @@ public class ControllerSnakeGame extends AbstractController {
 		
 
 		
-		this.game = new SnakeGame(10000, inputMap, false);
+		this.game = new SnakeGame(10000, inputMap, false, new GameObserveur());
 		this.game.init();
 
 
