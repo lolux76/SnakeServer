@@ -63,7 +63,7 @@ public class SnakeGame extends Game implements Serializable {
 	
 	boolean randomFirstApple;
 
-	private GameObserveur gameObserveur;
+	private final GameObserveur gameObserveur;
 
 	public SnakeGame(int maxTurn, InputMap inputMap, boolean randomFirstApple, GameObserveur gameObserveur) {
 
@@ -155,7 +155,7 @@ public class SnakeGame extends Game implements Serializable {
 	public void takeTurn() {
 
 
-		SnakeGame state = SerializationUtils.clone( this);
+		//SnakeGame state = SerializationUtils.clone( this);
 		
 		for(int i =0; i < tabCurrentRewardSnakes.length; i++) {	
 			tabCurrentRewardSnakes[i] = 0;
@@ -216,7 +216,7 @@ public class SnakeGame extends Game implements Serializable {
 			
 			if(actions.get(i) != null) {
 				
-				snakes.get(i).update(state, actions.get(i), this, tabCurrentRewardSnakes[i]);
+				snakes.get(i).update(actions.get(i), this, tabCurrentRewardSnakes[i]);
 				
 			}
 			

@@ -127,12 +127,12 @@ public class Snake implements Serializable{
 
 	
 	
-	public void update(SnakeGame state, AgentAction action, SnakeGame nextState, int reward ) {
-		
+	public void update(AgentAction action, SnakeGame nextState, int reward ) {
+		/*
 		if(this.strategy.isModeTrain()) {
-			this.strategy.update(this.id, state, action, nextState, reward, isDead );
+			this.strategy.update(this.id, action, nextState, reward, isDead );
 		}
-		
+		*/
 	}
 	
 	
