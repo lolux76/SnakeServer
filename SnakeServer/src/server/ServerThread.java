@@ -1,6 +1,5 @@
 package server;
 
-import netscape.javascript.JSObject;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,6 +33,7 @@ public class ServerThread extends Thread implements Observer{
     private HashMap<Socket, String> clientTokenList;
     private ServerState serverState;
     private String messageColor;
+    GameThread gameThread;
 
     public ServerThread(Socket socket, ArrayList<Socket> clients, HashMap<Socket, String> clientNameList, HashMap<Socket, String> clientTokenList) {
         this.socket = socket;
@@ -51,21 +51,30 @@ public class ServerThread extends Thread implements Observer{
 
             while (true) {
                 String outputString = input.readLine();
-                String verif=outputString.split(": ")[1];
-                if (verif.equals("/logout")) {
-                    throw new SocketException();
+                System.out.println(outputString);
+                if(outputString.charAt(0)=='{') {
+                    JSONObject json = new JSONObject(outputString);
+                    if(json.has("direction")) {
+                    	gameThread.majSnake(json.getInt("direction"));
+                    }
                 }
-                else if(verif.equals("/run")) {
-                    launchGame();
-                }
-                if (!clientNameList.containsKey(socket)) {
-                    String[] messageString = outputString.split(":", 2);
-                    clientNameList.put(socket, messageString[0]);
-                    clientTokenList.put(socket, RandomStringUtils.randomAlphanumeric(250)); // Generate random token for identifying the client
-                    System.out.println(messageString[0] + messageString[1]);
-                    showMessageToAllClients(socket, messageString[0] + messageString[1]);
-                } else {
-                    showMessageToAllClients(socket, outputString);
+                else {
+                    String verif=outputString.split(": ")[1];
+                	if (verif.equals("/logout")) {
+                        throw new SocketException();
+                    }
+                    else if(verif.equals("/run")) {
+                        launchGame();
+                    }
+                    if (!clientNameList.containsKey(socket)) {
+                        String[] messageString = outputString.split(":", 2);
+                        clientNameList.put(socket, messageString[0]);
+                        clientTokenList.put(socket, RandomStringUtils.randomAlphanumeric(250)); // Generate random token for identifying the client
+                        System.out.println(messageString[0] + messageString[1]);
+                        showMessageToAllClients(socket, messageString[0] + messageString[1]);
+                    } else {
+                        showMessageToAllClients(socket, outputString);
+                    }
                 }
             }
         } catch (SocketException e) {
@@ -80,8 +89,8 @@ public class ServerThread extends Thread implements Observer{
     }
 
     private void launchGame() {
-    	GameThread gameThread=new GameThread(this, this.socket, this.clientTokenList.get(this.socket));
-    	gameThread.run();
+    	gameThread=new GameThread(this.socket, this.clientTokenList.get(this.socket));
+    	gameThread.start();
     }
 
     private void showMessageToAllClients(Socket sender, String outputString) {

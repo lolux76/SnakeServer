@@ -18,10 +18,11 @@ import org.json.JSONObject;
 import strategy.Strategy;
 import strategy.StrategyHuman;
 import utils.Direction;
+import utils.Position;
 
-public class GameThread implements Runnable, Observer {
+public class GameThread extends Thread implements Observer {
 	private SnakeGame snakeGame;
-	private String layoutName = "SnakeServer/layouts/alone/smallNoWall_alone.lay";
+	private String layoutName = "layouts/alone/smallNoWall_alone.lay";
 	private InputMap inputMap = null;
 	Observer serverObserv;
 
@@ -29,9 +30,7 @@ public class GameThread implements Runnable, Observer {
 	private Socket socket;
 	private GameObserveur gameObserveur;
 	
-	public GameThread(Observer observer, Socket socket, String token) {
-		serverObserv=observer;
-
+	public GameThread(Socket socket, String token) {
 		this.socket = socket;
 		this.token = token;
 
@@ -42,24 +41,33 @@ public class GameThread implements Runnable, Observer {
 			e.printStackTrace();
 		}
 		this.gameObserveur = new GameObserveur();
+		this.gameObserveur.addObserver(this);
 		this.snakeGame = new SnakeGame(1000, inputMap, true, this.gameObserveur);
 		Strategy[] arrayStrategies = new Strategy[inputMap.getStart_snakes().size()];
 		arrayStrategies[0]=new StrategyHuman();
 		this.snakeGame.setStrategies(arrayStrategies);
 		this.snakeGame.init();
-		this.gameObserveur.addObserver(this);
 	}
 	
 	public void run() {
-		snakeGame.takeTurn();
+		while(true) {
+			snakeGame.takeTurn();
+			try {
+				Thread.sleep(snakeGame.getTime());
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 	
-	public void majSnake(Direction direction){
-		snakeGame.changeLastAction(direction);
+	public void majSnake(int direction){
+		snakeGame.changeLastAction(Direction.values()[direction]);
 	}
 
 	@Override
 	public void update(Observable observable, Object o) {
+		this.snakeGame = (SnakeGame)o;
 		ArrayList<Snake> snakes = this.snakeGame.getSnakes();
 		boolean[][] walls = this.snakeGame.getWalls();
 		ArrayList<Item> items = this.snakeGame.getItems();
@@ -76,24 +84,26 @@ public class GameThread implements Runnable, Observer {
 		jsonData.put("token", this.token);
 		JSONArray snakesPositions = new JSONArray();
 		for(Snake snake : snakes){
-			JSONArray position = new JSONArray();
-			JSONObject positionJSON = new JSONObject();
-			positionJSON.put("x", snake.getX());
-			positionJSON.put("y", snake.getY());
-			position.put(positionJSON);
-			snakesPositions.put(position);
+			JSONArray positionsX= new JSONArray();
+			JSONArray positionsY= new JSONArray();
+			for(Position position: snake.getPositions()) {
+				positionsX.put(position.getX());
+				positionsY.put(position.getY());
+			}
+			JSONObject positionJSON= new JSONObject();
+			positionJSON.put("x", positionsX);
+			positionJSON.put("y", positionsY);
+			snakesPositions.put(positionJSON);
 		}
 		jsonData.put("snakes" , snakesPositions);
 
 		JSONArray itemsPositions = new JSONArray();
 		for(Item item : items){
-			JSONArray position = new JSONArray();
 			JSONObject positionJSON = new JSONObject();
 			positionJSON.put("itemType", item.getItemType().ordinal()); //numéro dans l'énumération
 			positionJSON.put("x", item.getX());
 			positionJSON.put("y", item.getY());
-			position.put(positionJSON);
-			itemsPositions.put(position);
+			itemsPositions.put(positionJSON);
 		}
 		jsonData.put("items", itemsPositions);
 

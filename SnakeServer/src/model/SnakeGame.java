@@ -63,11 +63,13 @@ public class SnakeGame extends Game implements Serializable {
 	
 	boolean randomFirstApple;
 
-	private final GameObserveur gameObserveur;
+	private GameObserveur gameObserveur;
 
 	public SnakeGame(int maxTurn, InputMap inputMap, boolean randomFirstApple, GameObserveur gameObserveur) {
 
 		super(maxTurn);
+		
+		this.changeLastAction(Direction.GAUCHE);
 
 		this.inputMap = inputMap;
 
@@ -174,7 +176,7 @@ public class SnakeGame extends Game implements Serializable {
 			
 			
 		}
-
+		
 		
 		for(int i = 0; i < actions.size(); i++) {
 
@@ -219,17 +221,13 @@ public class SnakeGame extends Game implements Serializable {
 				snakes.get(i).update(actions.get(i), this, tabCurrentRewardSnakes[i]);
 				
 			}
-			
 		}
 
-			
+		this.setChanged();
 		//removeSnake();
 		
 		updateSnakeTimers();
-
-		this.gameObserveur.update(this);
-
-			
+		this.gameObserveur.update(this);			
 	}
 
 	public boolean isLegalMove(Snake snake, AgentAction action) {
